@@ -58,7 +58,7 @@ public class AlarmReceiver extends BroadcastReceiver {
         Date jobLastRun;
 
         jobLastRun = new Date(Long.parseLong(job.getJobLastRun()));
-        if (TimeUnit.MILLISECONDS.toMinutes(currentDate.getTime() - jobLastRun.getTime()) < 10) { // call came in too early, probably a repeat call
+        if (TimeUnit.MILLISECONDS.toSeconds(currentDate.getTime() - jobLastRun.getTime()) < 30) { // call came in too early, probably a repeat call
             return;
         }
 
@@ -93,7 +93,7 @@ public class AlarmReceiver extends BroadcastReceiver {
 
         // while target time is not more than 10 minutes later than current time, increase the target time
         // this is in case one of previous job is missed
-        while (TimeUnit.MILLISECONDS.toMinutes(targetTime.getTime() - currentTime.getTime()) < 10) {
+        while (TimeUnit.MILLISECONDS.toSeconds(targetTime.getTime() - currentTime.getTime()) < 30) {
             switch (job.getJobTimeUnit()) {
                 case "hour":
                     nextCalendar.add(Calendar.HOUR, Integer.parseInt(job.getJobInterval()));

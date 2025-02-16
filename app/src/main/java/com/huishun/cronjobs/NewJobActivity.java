@@ -121,15 +121,15 @@ public class NewJobActivity extends AppCompatActivity {
                             Toast.LENGTH_LONG).show();
                     return;
                 }
-                if (Integer.parseInt(jobIntervalEdittext.getText().toString()) % 15 != 0
-                        && jobTimeUnitSpinner.getSelectedItemPosition() == 0
-                ) {
-                    Toast.makeText(
-                            NewJobActivity.this,
-                            "Please use 15-minute intervals",
-                            Toast.LENGTH_LONG).show();
-                    return;
-                }
+               if (Integer.parseInt(jobIntervalEdittext.getText().toString()) % 1 != 0
+                       && jobTimeUnitSpinner.getSelectedItemPosition() == 0
+               ) {
+                   Toast.makeText(
+                           NewJobActivity.this,
+                           "Please use 1-minute intervals",
+                           Toast.LENGTH_LONG).show();
+                   return;
+               }
                 if (jobParamsTextinput.getText().toString().length() > 0) {
                     try {
                         new JSONObject(jobParamsTextinput.getText().toString());
@@ -162,7 +162,7 @@ public class NewJobActivity extends AppCompatActivity {
                 job.setJobNotifyError(jobNotifyErrorSwitch.isChecked() ? 1 : 0);
                 job.setJobNotifySuccess(jobNotifySuccessSwitch.isChecked() ? 1 : 0);
                 job.setJobResult("");
-                job.setJobNextRun(calcNextRun());
+                job.setJobNextRun(calcNextRun(job));
                 job.setJobRunCount(0);
                 job.setJobLastRun("1580897313933");
 
@@ -204,25 +204,11 @@ public class NewJobActivity extends AppCompatActivity {
         alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, targetTime.getTime(), pendingIntent);
     }
 
-    private String calcNextRun() {
-        long currentTime = new Date().getTime();
-        long fifteen = 15 * 60 * 1000;
-        long nextTime = (currentTime / fifteen + 1) * fifteen;
-//        Calendar calendar = Calendar.getInstance();
-//        calendar.setTime(new Date(nextTime));
-//        switch (job.getJobTimeUnit()) {
-//            case "hour":
-//                calendar.add(Calendar.HOUR, Integer.parseInt(job.getJobInterval()));
-//                break;
-//            case "day":
-//                calendar.add(Calendar.DATE, Integer.parseInt(job.getJobInterval()));
-//                break;
-//            default:
-//                calendar.add(Calendar.MINUTE, Integer.parseInt(job.getJobInterval()));
-//                break;
-//        }
-        String targetDate = Long.toString(nextTime);
-        return targetDate;
+    private String calcNextRun(JobModel job) {
+        Calendar nextCalendar = Calendar.getInstance();
+        nextCalendar.add(Calendar.MINUTE, Integer.parseInt(job.getJobInterval()));
+
+        return Long.toString(nextCalendar.getTime().getTime());
     }
 
     @Override

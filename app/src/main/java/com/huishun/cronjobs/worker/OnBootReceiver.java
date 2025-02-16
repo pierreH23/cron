@@ -66,7 +66,7 @@ public class OnBootReceiver extends BroadcastReceiver {
 
         // while target time is not more than 10 minutes later than current time, increase the target time
         // this is in case one of previous job is missed
-        while (TimeUnit.MILLISECONDS.toMinutes(targetTime.getTime() - currentTime.getTime()) < 0) {
+        while (TimeUnit.MILLISECONDS.toSeconds(targetTime.getTime() - currentTime.getTime()) < 30) {
             switch (job.getJobTimeUnit()) {
                 case "hour":
                     nextCalendar.add(Calendar.HOUR, Integer.parseInt(job.getJobInterval()));

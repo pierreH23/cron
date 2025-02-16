@@ -45,6 +45,7 @@ import java.io.OutputStreamWriter;
 import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 import java.util.UUID;
@@ -156,15 +157,15 @@ public class DetailsActivity extends AppCompatActivity {
                     return;
                 }
 
-                if (Integer.parseInt(jobIntervalEdittext.getText().toString()) % 15 != 0
-                        && jobTimeUnitSpinner.getSelectedItemPosition() == 0
-                ) {
-                    Toast.makeText(
-                            DetailsActivity.this,
-                            "Please use 15-minute intervals",
-                            Toast.LENGTH_LONG).show();
-                    return;
-                }
+               if (Integer.parseInt(jobIntervalEdittext.getText().toString()) % 1 != 0
+                       && jobTimeUnitSpinner.getSelectedItemPosition() == 0
+               ) {
+                   Toast.makeText(
+                           DetailsActivity.this,
+                           "Please use 1-minute intervals",
+                           Toast.LENGTH_LONG).show();
+                   return;
+               }
 
                 if (jobParamsTextinput.getText().toString().length() > 0) {
                     try {
@@ -321,24 +322,10 @@ public class DetailsActivity extends AppCompatActivity {
 
     // have to calculate next run here to show it in main activity
     private String calcNextRun(JobModel job) {
-        long currentTime = new Date().getTime();
-        long fifteen = 15 * 60 * 1000;
-        long nextTime = (currentTime / fifteen + 1) * fifteen;
-//        Calendar calendar = Calendar.getInstance();
-//        calendar.setTime(new Date(nextTime));
-//        switch (job.getJobTimeUnit()) {
-//            case "hour":
-//                calendar.add(Calendar.HOUR, Integer.parseInt(job.getJobInterval()));
-//                break;
-//            case "day":
-//                calendar.add(Calendar.DATE, Integer.parseInt(job.getJobInterval()));
-//                break;
-//            default:
-//                calendar.add(Calendar.MINUTE, Integer.parseInt(job.getJobInterval()));
-//                break;
-//        }
-        String targetDate = Long.toString(nextTime);
-        return targetDate;
+        Calendar nextCalendar = Calendar.getInstance();
+        nextCalendar.add(Calendar.MINUTE, Integer.parseInt(job.getJobInterval()));
+
+        return Long.toString(nextCalendar.getTime().getTime());
     }
 
     public int createNotificationId(){
