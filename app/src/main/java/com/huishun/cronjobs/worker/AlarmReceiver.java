@@ -14,6 +14,7 @@ import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
 import com.android.volley.DefaultRetryPolicy;
+import com.android.volley.NetworkResponse;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -32,12 +33,14 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 public class AlarmReceiver extends BroadcastReceiver {
 
     AlarmManager alarmManager;
+    private Map<String, String> responseHeaders;
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
@@ -163,7 +166,11 @@ public class AlarmReceiver extends BroadcastReceiver {
 
                 // show success notification
                 if (job.getJobNotifySuccess() == 1) {
-                    sendNotification(context, job, "Request is successful");
+                    String message = responseHeaders.get("X-Success-Message");
+                    if(message == null) {
+                        message = "Request is successful";
+                    }
+                    sendNotification(context, job, message);
                 }
             }
         }, new Response.ErrorListener() {
@@ -188,10 +195,24 @@ public class AlarmReceiver extends BroadcastReceiver {
 
                 // show error notification
                 if (job.getJobNotifyError() == 1) {
-                    sendNotification(context, job, "Error — unable to call endpoint");
+                    //String errorBody = new String(error.networkResponse.data, StandardCharsets.UTF_8);
+                    Map<String, String> errorHeaders = error.networkResponse.headers;
+                    String message = errorHeaders.get("X-Error-Message");
+                    if(message == null) {
+                        message = "Request is unsuccessful";
+                    }
+                    sendNotification(context, job, message);
                 }
             }
         }) {
+             // Stocker les headers
+
+            @Override
+            protected Response<String> parseNetworkResponse(NetworkResponse response) {
+                responseHeaders = response.headers; // Stocker les headers pour un accès ultérieur
+                return super.parseNetworkResponse(response);
+            }
+
             @Override
             public String getBodyContentType() {
                 return "application/json; charset=utf-8";
@@ -201,7 +222,10 @@ public class AlarmReceiver extends BroadcastReceiver {
             public byte[] getBody() {
                 return jsonString == null ? null : jsonString.getBytes(StandardCharsets.UTF_8);
             }
+
+
         };
+
 
         stringRequest.setRetryPolicy(new DefaultRetryPolicy(
                 0,
